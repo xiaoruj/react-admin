@@ -7,3 +7,19 @@ export function reqGetSubjectList(page, limit) {
     method: "GET",
   });
 }
+export function reqGetSubSubjectList(parentId) {
+  return request({
+    url: `${MOCK_BASE_URL}/get/${parentId}`,
+    method: "GET",
+  });
+}
+export function reqAddSubject(title, parentId) {
+  return request({
+    url: `${MOCK_BASE_URL}/save`,
+    method: "POST",
+    data: {
+      title,
+      parentId,
+    },
+  });
+}

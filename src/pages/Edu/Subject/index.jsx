@@ -1,27 +1,38 @@
 import React, { Component } from "react";
 import { Button, Table } from "antd";
 import { PlusOutlined, FormOutlined, DeleteOutlined } from "@ant-design/icons";
-import { reqGetSubjectList } from "@api/edu/subject";
+import { connect } from "react-redux";
+import { getSubjectList, getSubSubjectList } from "./redux";
 import "./index.less";
 
-export default class Subject extends Component {
+@connect((state) => ({ subjectList: state.subjectList }), {
+  getSubjectList,
+  getSubSubjectList,
+})
+class Subject extends Component {
   state = {
-    subjects: {
-      total: 0,
-      items: [],
-    },
+    expandedRowKeys: [],
   };
   componentDidMount() {
-    this.getSubjectList(1, 10);
+    this.props.getSubjectList(1, 10);
   }
-  getSubjectList = async (page, limit) => {
-    const result = await reqGetSubjectList(page, limit);
+  handleExpandedRowsChange = (expandedRowKeys) => {
+    console.log("handleExpandedRowsChange", expandedRowKeys);
+    const length = expandedRowKeys.length;
+    if (length > this.state.expandedRowKeys.length) {
+      const lastkey = expandedRowKeys[length - 1];
+      this.props.getSubSubjectList(lastkey);
+    }
     this.setState({
-      subjects: result,
+      expandedRowKeys,
     });
   };
+  showAddSubject = () => {
+    this.props.history.push("/edu/subject/add");
+  };
   render() {
-    const { subjects } = this.state;
+    const { subjectList, getSubjectList } = this.props;
+    const { expandedRowKeys } = this.state;
     const columns = [
       {
         title: "分类名称",
@@ -47,30 +58,34 @@ export default class Subject extends Component {
     ];
     return (
       <div className="subject">
-        <Button type="primary" className="subject-btn">
+        <Button
+          type="primary"
+          className="subject-btn"
+          onclick={this.showAddSubject}
+        >
           <PlusOutlined />
           新建
         </Button>
         <Table
           rowKey="id"
           columns={columns}
-          dataSource={subjects}
           expandable={{
-            expandedRowRender: (record) => (
-              <p style={{ margin: 0 }}>{record.description}</p>
-            ),
-            rowExpandable: (record) => record.name !== "Not Expandable",
+            expandedRowKeys,
+            onExpandedRowsChange: this.handleExpandedRowsChange,
           }}
+          dataSource={subjectList.items}
           pagination={{
-            total: subjects.total,
+            total: subjectList.total,
             showQuickJumper: true,
             showSizeChanger: true,
             pageSizeOptions: ["5", "10", "15", "20"],
             defaultPageSize: 10,
-            onChange: this.getSubjectList,
+            onChange: getSubjectList,
+            onShowSizeChange: getSubjectList,
           }}
         />
       </div>
     );
   }
 }
+export default Subject;
