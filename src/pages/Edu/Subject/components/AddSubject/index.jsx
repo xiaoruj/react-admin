@@ -19,6 +19,7 @@ function AddSubject({ total, getSubjectList, history }) {
     history.push("/edu/subject/list");
   };
   useEffect(() => {
+    page = 1;
     const fetchData = async () => {
       const items = await getSubjectList(page++, 10);
       setSubjects(items);
