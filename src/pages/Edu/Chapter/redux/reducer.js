@@ -2,6 +2,7 @@ import {
   GET_ALL_COURSE_LIST,
   GET_CHAPTER_LIST,
   GET_LESSON_LIST,
+  BATCH_REMOVE_LESSON_LIST,
 } from "./constants";
 const initChapter = {
   allCourseList: [],
@@ -43,6 +44,25 @@ export default function chapter(prevState = initChapter, action) {
               };
             }
             return chapter;
+          }),
+        },
+      };
+    case BATCH_REMOVE_LESSON_LIST:
+      return {
+        ...prevState,
+        chapters: {
+          total: prevState.chapters.total,
+          items: prevState.chapters.items.map((chapter) => {
+            let children = chapter.children;
+            if (children && children.length) {
+              children = children.filter(
+                (item) => action.data.indexOf(item._id) === -1
+              );
+            }
+            return {
+              ...chapter,
+              children,
+            };
           }),
         },
       };

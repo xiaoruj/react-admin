@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, Tooltip, Alert, Table, Modal } from "antd";
+import { Button, Tooltip, Alert, Table, Modal, message } from "antd";
 import {
   PlusOutlined,
   FullscreenOutlined,
@@ -12,13 +12,18 @@ import {
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import Player from "griffith";
-import { getLessonList } from "../../redux";
+import screenfull from "screenfull";
+import { getLessonList, batchRemoveLessonList } from "../../redux";
 import "./index.less";
 @withRouter
-@connect((state) => ({ chapters: state.chapter.chapters }), { getLessonList })
+@connect((state) => ({ chapters: state.chapter.chapters }), {
+  getLessonList,
+  batchRemoveLessonList,
+})
 class List extends Component {
   state = {
     expandedRowKeys: [],
+    selectedRowKeys: [],
     isShowVideoModal: false,
     lesson: {},
   };
@@ -31,6 +36,11 @@ class List extends Component {
     }
     this.setState({
       expandedRowKeys,
+    });
+  };
+  onSelectChange = (selectedRowKeys) => {
+    this.setState({
+      selectedRowKeys,
     });
   };
   showAddLesson = (chapter) => {
@@ -52,9 +62,36 @@ class List extends Component {
       lesson: {},
     });
   };
+  batchRemove = async () => {
+    const { selectedRowKeys } = this.state;
+    const {
+      chapters: { items: chapters },
+      batchRemoveLessonList,
+    } = this.props;
+    const ids = Array.prototype.slice.call(selectedRowKeys);
+    const chapterIds = [];
+    chapters.forEach((chapter) => {
+      const index = ids.indexOf(chapter._id);
+      if (index > -1) {
+        const [id] = ids.splice(index, 1);
+        chapterIds.push(id);
+      }
+    });
+    await batchRemoveLessonList(ids);
+    message.success("批量删除数据成功");
+  };
+  screenfull = () => {
+    const dom = this.props.fullscreenRef.current;
+    screenfull.toggle(dom);
+  };
   render() {
     const { chapters } = this.props;
-    const { expandedRowKeys, isShowVideoModal, lesson } = this.state;
+    const {
+      expandedRowKeys,
+      isShowVideoModal,
+      lesson,
+      selectedRowKeys,
+    } = this.state;
     const columns = [
       {
         title: "名称",
@@ -133,9 +170,11 @@ class List extends Component {
               <PlusOutlined />
               新增课程
             </Button>
-            <Button type="danger">批量删除</Button>
+            <Button type="danger" onClick={this.batchRemove}>
+              批量删除
+            </Button>
             <Tooltip title="全屏">
-              <FullscreenOutlined />
+              <FullscreenOutlined onClick={this.screenfull} />
             </Tooltip>
             <Tooltip title="刷新">
               <ReloadOutlined />
@@ -145,10 +184,18 @@ class List extends Component {
             </Tooltip>
           </div>
         </div>
-        <Alert message="已选择 0 项" type="info" showIcon />
+        <Alert
+          message={`已选择 ${selectedRowKeys.length} 项`}
+          type="info"
+          showIcon
+        />
         <Table
           className="chapter-list-table"
           columns={columns}
+          rowSelection={{
+            selectedRowKeys,
+            onChange: this.onSelectChange,
+          }}
           expandable={{
             expandedRowKeys,
             onExpandedRowsChange: this.handleExpandedRowsChange,

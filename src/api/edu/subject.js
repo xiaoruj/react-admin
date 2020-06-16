@@ -38,3 +38,9 @@ export function reqDelSubject(id) {
     method: "DELETE",
   });
 }
+export function reqGetAllSubjectList() {
+  return request({
+    url: `${BASE_URL}`,
+    method: "GET",
+  });
+}

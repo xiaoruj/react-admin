@@ -18,3 +18,12 @@ export function reqAddLesson({ chapterId, title, free, video }) {
     },
   });
 }
+export function reqBatchRemoveLessonList(idList) {
+  return request({
+    url: `${BASE_URL}/batchRemove`,
+    method: "DELETE",
+    data: {
+      idList,
+    },
+  });
+}

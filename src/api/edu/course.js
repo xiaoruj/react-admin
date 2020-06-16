@@ -6,3 +6,26 @@ export function reqGetAllCourseList() {
     method: "GET",
   });
 }
+export function reqGetCourseList({
+  page,
+  limit,
+  teacherId,
+  subjectId,
+  subjectParentId,
+  title,
+  sortBy,
+  sort,
+}) {
+  return request({
+    url: `${BASE_URL}/${page}/${limit}`,
+    method: "GET",
+    params: {
+      teacherId,
+      subjectId,
+      subjectParentId,
+      title,
+      sortBy,
+      sort,
+    },
+  });
+}

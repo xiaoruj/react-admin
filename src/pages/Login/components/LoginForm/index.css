@@ -1,0 +1,20 @@
+.login-form-phone {
+  display: flex;
+  justify-content: space-between;
+}
+.login-form-phone button {
+  margin-left: 10px;
+}
+.login-form-btn {
+  width: 100%;
+}
+.login-form-icons {
+  width: 170px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.login-form-icons .icons {
+  font-size: 20px;
+  cursor: pointer;
+}

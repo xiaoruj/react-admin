@@ -1,10 +1,11 @@
 import { reqGetAllCourseList } from "@api/edu/course";
-import { reqGetChapterList } from "@api/edu/chapter";
-import { reqGetLessonList } from "@api/edu/lesson";
+import { reqGetChapterList, reqBatchRemoveChapterList } from "@api/edu/chapter";
+import { reqGetLessonList, reqBatchRemoveLessonList } from "@api/edu/lesson";
 import {
   GET_ALL_COURSE_LIST,
   GET_CHAPTER_LIST,
   GET_LESSON_LIST,
+  BATCH_REMOVE_LESSON_LIST,
 } from "./constants";
 const getAllCourseListSync = (courseList) => ({
   type: GET_ALL_COURSE_LIST,
@@ -40,6 +41,18 @@ export const getLessonList = (chapterId) => {
     return reqGetLessonList(chapterId).then((response) => {
       dispatch(getLessonListSync({ chapterId, lessons: response }));
       return response;
+    });
+  };
+};
+const batchRemoveLessonListSync = (idList) => ({
+  type: BATCH_REMOVE_LESSON_LIST,
+  data: idList,
+});
+export const batchRemoveLessonList = (idList) => {
+  return (dispatch) => {
+    return reqBatchRemoveLessonList(idList).then((response) => {
+      dispatch(batchRemoveLessonListSync(idList));
+      return idList;
     });
   };
 };
