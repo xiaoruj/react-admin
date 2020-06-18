@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import { Button, message, Table, Tooltip, Modal } from "antd";
 import {
   FormOutlined,
@@ -10,30 +10,23 @@ import {
   RedoOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-
+import { FormattedMessage } from "react-intl";
 import { connect } from "react-redux";
-import SearchForm from "./SearchForm";
+import Search from "./components/Search";
 import { getCourseList } from "./redux";
-
-// import { filterPermissions } from "@utils/permission";
 import "./index.less";
-
 @connect(
   (state) => ({
     courseList: state.courseList,
-    // permissionValueList: filterPermissions(
-    //   state.course.permissionValueList,
-    //   "Course"
-    // )
   }),
-  { getcourseList }
+  { getCourseList }
 )
-class Course extends Component {
+class Course extends PureComponent {
   state = {
     searchLoading: false,
     tableLoading: false,
-    page: 1, // 页数
-    limit: 5, // 每页显示条数
+    page: 1,
+    limit: 5,
     previewVisible: false,
     previewImage: "",
   };
@@ -41,19 +34,15 @@ class Course extends Component {
     this.setState({
       searchLoading: true,
     });
-
     const { page, limit } = this.state;
-
     this.getcourseList({ Coursename: searchName, page, limit }).finally(() => {
       this.setState({
         searchLoading: false,
       });
     });
   };
-
   renderTableItem = () => {
     // const { permissionValueList } = this.props;
-
     return (
       <div>
         <Tooltip title="发布课程">
@@ -74,7 +63,6 @@ class Course extends Component {
       </div>
     );
   };
-
   showImgModal = (img) => {
     return () => {
       this.setState({
@@ -83,13 +71,11 @@ class Course extends Component {
       });
     };
   };
-
   handleImgModal = () => {
     this.setState({
       previewVisible: false,
     });
   };
-
   columns = [
     {
       title: "序号",
@@ -126,7 +112,7 @@ class Course extends Component {
       dataIndex: "price",
       render: (text) => <span>{`￥ ${text}`}</span>,
       width: 120,
-      // sorter: {
+      // sorter: { // 前端排序
       //   compare: (a, b) => b.price - a.price,
       // },
       sorter: true, // 后台排序~
@@ -184,18 +170,16 @@ class Course extends Component {
       fixed: "right",
     },
   ];
-
   componentDidMount() {
     // const { page, limit } = this.state;
     // this.handleTableChange(page, limit);
   }
-
   handleTableChange = (page, limit) => {
     this.setState({
       tableLoading: true,
     });
     const { searchData } = this.state;
-    this.getcourseList({ page, limit, ...searchData }).finally(() => {
+    this.props.getCourseList({ page, limit, ...searchData }).finally(() => {
       this.setState({
         tableLoading: false,
         page,
@@ -203,7 +187,6 @@ class Course extends Component {
       });
     });
   };
-
   getcourseList = ({ page, limit, Coursename, nickName }) => {
     return this.props
       .getcourseList({ page, limit, Coursename, nickName })
@@ -216,12 +199,12 @@ class Course extends Component {
       });
   };
   sortTable = (pagination, filters, sorter) => {
-    // console.log(sorter);
     const searchData = this.searchData;
     const { page, limit } = this.state;
     const { field, order } = sorter;
+    // console.log(sorter);
     if (!searchData) {
-      message.warn("请先搜索");
+      message.warn("请先搜索~");
       return;
     }
     const sort = order === "ascend" ? 1 : order === "descend" ? -1 : undefined;
@@ -246,19 +229,17 @@ class Course extends Component {
       previewImage,
     } = this.state;
     const { courseList } = this.props;
-    const courseList = courseList.items.map((course, index) => {
+    const courses = courseList.items.map((course, index) => {
       return {
-        ...item,
+        ...course,
         index: index + 1,
       };
     });
-
     return (
       <div>
         <div className="course-search">
           <Search getSearchFormData={this.getSearchFormData} />
         </div>
-
         <div className="course-table">
           <div className="course-table-header">
             <h3>
@@ -299,7 +280,6 @@ class Course extends Component {
             onChange={this.sortTable}
           />
         </div>
-
         <Modal
           visible={previewVisible}
           footer={null}

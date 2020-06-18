@@ -1,11 +1,8 @@
 import React, { Component } from "react";
 import { CopyrightOutlined } from "@ant-design/icons";
-
-import logo from "@assets/images/logo.png";
-import LoginForm from "./LoginForm";
-
+import LoginForm from "./components/LoginForm";
 import "./index.less";
-
+import logo from "@assets/images/logo.png";
 export default class Login extends Component {
   render() {
     return (
